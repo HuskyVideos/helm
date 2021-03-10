@@ -20,12 +20,17 @@
 #include "synth_base.h"
 
 #define OLD_LINUX_USER_BANK_DIRECTORY "~/.helm/User Patches"
+#define OLD_LINUX_XDG_USER_BANK_DIRECTORY "~/.local/share/helm/User Patches"
 
 namespace {
   File getOldUserPatchesDirectory() {
     File patch_dir = File("");
 #ifdef LINUX
-    patch_dir = File(OLD_LINUX_USER_BANK_DIRECTORY);
+    File patch_xdg_dir = File(OLD_LINUX_XDG_USER_BANK_DIRECTORY);
+    if( patch_xdg_dir.exists() )
+      patch_dir = patch_xdg_dir;
+    else
+      patch_dir = File(OLD_LINUX_USER_BANK_DIRECTORY);
 #elif defined(__APPLE__)
     File data_dir = File::getSpecialLocation(File::userApplicationDataDirectory);
     patch_dir = data_dir.getChildFile(String("Audio/Presets/") + "Helm");

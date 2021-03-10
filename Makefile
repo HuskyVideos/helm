@@ -2,10 +2,6 @@ ifndef CONFIG
 	CONFIG=Release
 endif
 
-ifndef LIBDIR
-	LIBDIR=/usr/lib/
-endif
-
 DPKG := $(shell dpkg-buildflags --version 2> /dev/null)
 
 ifdef DPKG
@@ -29,20 +25,22 @@ else
 endif
 endif
 
-PROGRAM = helm
-BIN     = $(DESTDIR)/usr/bin
-BINFILE = $(BIN)/$(PROGRAM)
-LV2     = $(DESTDIR)/$(LIBDIR)/lv2/$(PROGRAM).lv2
-VSTDIR  = $(DESTDIR)/$(LIBDIR)/lxvst
-VST     = $(VSTDIR)/$(PROGRAM).so
-SYSDATA = $(DESTDIR)/usr/share/$(PROGRAM)
-IMAGES  = $(SYSDATA)/icons
-PATCHES = $(SYSDATA)/patches
-MAN     = $(DESTDIR)/usr/share/man/man1/
-CHANGES = $(DESTDIR)/usr/share/doc/$(PROGRAM)/
-DESKTOP = $(DESTDIR)/usr/share/applications/
+PROGRAM  = helm
+PREFIX  ?= $(DESTDIR)/usr
+BIN      = $(PREFIX)/bin
+BINFILE  = $(BIN)/$(PROGRAM)
+LIBDIR   = $(PREFIX)/lib
+LV2      = $(LIBDIR)/lv2/$(PROGRAM).lv2
+VSTDIR   = $(LIBDIR)/lxvst
+VST      = $(VSTDIR)/$(PROGRAM).so
+SYSDATA  = $(PREFIX)/share/$(PROGRAM)
+IMAGES   = $(SYSDATA)/icons
+PATCHES  = $(SYSDATA)/patches
+MAN      = $(PREFIX)/share/man/man1/
+CHANGES  = $(PREFIX)/share/doc/$(PROGRAM)/
+DESKTOP  = $(PREFIX)/share/applications/
 
-ICONS   = $(DESTDIR)/usr/share/icons/hicolor/
+ICONS   = $(PREFIX)/share/icons/hicolor/
 ICON16  = images/helm_icon_16_1x.png
 ICON22  = images/helm_icon_22_1x.png
 ICON24  = images/helm_icon_24_1x.png

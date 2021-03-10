@@ -23,6 +23,7 @@
 #define LINUX_FACTORY_PATCH_DIRECTORY "/usr/share/helm/patches"
 #define USER_BANK_NAME "User Patches"
 #define LINUX_BANK_DIRECTORY "~/.helm/patches"
+#define LINUX_XDG_BANK_DIRECTORY "~/.local/share/helm/patches"
 #define EXPORTED_BANK_EXTENSION "helmbank"
 #define DID_PAY_FILE "thank_you.txt"
 #define PAY_WAIT_DAYS 4
@@ -358,7 +359,11 @@ File LoadSave::getConfigFile() {
   config_options.filenameSuffix = "config";
 
 #ifdef LINUX
-  config_options.folderName = "." + String(ProjectInfo::projectName).toLowerCase();
+  File tmp_file(".config/" + String(ProjectInfo::projectName).toLowerCase());
+  if( tmp_file.exists() )
+      config_options.folderName = ".config/" + String(ProjectInfo::projectName).toLowerCase();
+  else
+      config_options.folderName = "." + String(ProjectInfo::projectName).toLowerCase();
 #else
   config_options.folderName = String(ProjectInfo::projectName).toLowerCase();
 #endif
@@ -559,9 +564,12 @@ void LoadSave::loadConfig(MidiManager* midi_manager, mopo::StringLayout* layout)
   }
 }
 
+/*
+ * NOTE(husky): "../../../patches" is only returned if
+ * neither the user nor the system bank exists
+ */
 bool LoadSave::isInstalled() {
-  File factory_bank = getFactoryBankDirectory();
-  return factory_bank.exists();
+  return !(getBankDirectory() == File("../../../patches"));
 }
 
 bool LoadSave::wasUpgraded() {
@@ -711,12 +719,13 @@ File LoadSave::getFactoryBankDirectory() {
 }
 
 File LoadSave::getBankDirectory() {
-  if (!isInstalled())
-    return File("../../../patches");
-
   File patch_dir = File("");
 #ifdef LINUX
-  patch_dir = File(LINUX_BANK_DIRECTORY);
+  File patch_xdg_dir = File(LINUX_XDG_BANK_DIRECTORY);
+  if( patch_xdg_dir.exists() )
+    patch_dir = patch_xdg_dir;
+  else
+    patch_dir = File(LINUX_BANK_DIRECTORY);
 #elif defined(__APPLE__)
   File data_dir = File::getSpecialLocation(File::userApplicationDataDirectory);
   patch_dir = data_dir.getChildFile(String("Audio/Presets/") + "Helm");
@@ -728,8 +737,16 @@ File LoadSave::getBankDirectory() {
   patch_dir = parent_dir.getChildFile("Patches");
 #endif
 
-  if (!patch_dir.exists())
+  /*
+   * NOTE(husky): Only return default path if neither
+   * system bank nor user bank exist.
+   * This makes it possible to load user banks with
+   * no system banks installed.
+   */
+  if (!patch_dir.exists() && !getFactoryBankDirectory().exists()) return File("../../../patches");
+  else if(!patch_dir.exists())
     patch_dir.createDirectory();
+
   return patch_dir;
 }
 

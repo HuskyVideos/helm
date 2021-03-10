@@ -28,8 +28,14 @@
 #define PATCHES_WIDTH_PERCENT 0.285
 #define PATCH_INFO_WIDTH_PERCENT 0.285
 #define TEXT_PADDING 4.0f
+
+/*
+ * NOTE(husky): Not used in this file
+ */
 #define LINUX_SYSTEM_PATCH_DIRECTORY "/usr/share/helm/patches"
 #define LINUX_USER_PATCH_DIRECTORY "~/.helm/User Patches"
+#define LINUX_XDG_USER_PATCH_DIRECTORY "~/.local/share/helm/User Patches"
+
 #define BROWSING_HEIGHT 430.0f
 #define BROWSE_PADDING 8.0f
 #define BUTTON_HEIGHT 30.0f
